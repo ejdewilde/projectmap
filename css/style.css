@@ -4,14 +4,14 @@
 }
 @font-face {
   font-family: "SasaPro";
-  src: url("sansapro-bold.woff") format("woff");
+  src: url("SansaPro-Bold.woff") format("woff");
   font-weight: bold;
   font-style: normal;
 }
 
 @font-face {
   font-family: "SansPro";
-  src: url("sansapro-normal.woff") format("woff");
+  src: url("SansaPro-Normal.woff") format("woff");
   font-weight: normal;
   font-style: normal;
 }
@@ -130,7 +130,7 @@ h4 {
   gap: 10px;
 }
 
-#project-buttons button {
+.project-button {
   padding: 10px;
   font-size: 16px;
   cursor: pointer;
@@ -140,8 +140,15 @@ h4 {
   border-radius: 5px;
 }
 
-#project-buttons button:hover {
+.project-button:hover {
   background-color: #45a049;
+}
+
+.overig-button {
+  background-color: purple;
+  color: white;
+  padding: 10px;
+  font-style: italic;
 }
 
 #gemeente-lijst {

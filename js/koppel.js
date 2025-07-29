@@ -6,20 +6,52 @@ jQuery(document).ready(function ($) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
+
+
                 const projecten = data.data;
                 const projectButtonsDiv = $('#project-buttons');
                 projectButtonsDiv.empty(); // Maak de projectknoppen leeg voordat je nieuwe knoppen toevoegt
 
+                const normaleProjecten = [];
+                const overigeProjecten = [];
+
+                // Splits projecten in twee lijsten
                 projecten.forEach(project => {
-                    const button = $('<button>')
+                    if (project.naam.toLowerCase().startsWith('overig')) {
+                        overigeProjecten.push(project);
+                    } else {
+                        normaleProjecten.push(project);
+                    }
+                });
+
+                // Voeg eerst de normale toe
+                normaleProjecten.forEach(project => {
+                    const btn = $('<button>')
+                        .addClass('project-button')
                         .text(project.naam)
+                        .data('project', project)
                         .click(function () {
                             selectedProjectId = project.id;
                             loadProjectData(selectedProjectId); // Laad de gegevens van het geselecteerde project
                             projectButtonsDiv.hide(); // Verberg de projectknoppen nadat een project is gekozen
                             $('#project-title').hide(); // Verberg de titel van het project
-                        });
-                    projectButtonsDiv.append(button);
+                        });;
+                    projectButtonsDiv.append(btn);
+                });
+
+                // Voeg daarna de 'Overig'-projecten toe met extra klasse
+                overigeProjecten.forEach(project => {
+                    const btn = $('<button>')
+                        .addClass('project-button overig-button')
+                        .text(project.naam)
+                        .data('project', project)
+                        .click(function () {
+                            selectedProjectId = project.id;
+                            loadProjectData(selectedProjectId); // Laad de gegevens van het geselecteerde project
+                            projectButtonsDiv.hide(); // Verberg de projectknoppen nadat een project is gekozen
+                            $('#project-title').hide(); // Verberg de titel van het project
+                        });;
+                    projectButtonsDiv.append(btn);
                 });
             } else {
                 console.error('Fout bij ophalen van projecten:', data.message);
