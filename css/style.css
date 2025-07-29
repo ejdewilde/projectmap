@@ -1,0 +1,266 @@
+@font-face {
+  font-family: "FrutigerLTPro-Light";
+  src: url("2E6251_0_0.woff2") format("woff2");
+}
+@font-face {
+  font-family: "SasaPro";
+  src: url("sansapro-bold.woff") format("woff");
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "SansPro";
+  src: url("sansapro-normal.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  font-family: "SansPro", sans-serif; /* Normale versie van SansPro */
+}
+/* Container voor de grid */
+.parent {
+  display: grid;
+  grid-template-columns: 2.5fr 1fr;
+  grid-template-rows: 0.1fr 1fr;
+  grid-column-gap: 30px;
+  grid-row-gap: 20px;
+  padding: 20px;
+  height: 100vh; /* Volledige hoogte */
+}
+
+/* Titel en projectinformatie bovenaan */
+#header {
+  font-family: "SasaPro", sans-serif; /* De bold versie van SasaPro */
+  font-weight: 700; /* Zodat het lettertype daadwerkelijk in bold is */
+  /*grid-column: span 2; /* Maak de titel en projectinformatie breed over beide kolommen */
+  grid-area: 1 / 1 / 2 / 2;
+  padding: 5px 5px;
+  font-size: 1.5em;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 5px;
+  border-radius: 8px;
+  font-size: 1.1em;
+  color: #333;
+  width: 100%;
+  z-index: 1;
+}
+
+/* De kaartcontainer */
+#project-map {
+  grid-area: 2 / 1 / 3 / 2;
+  width: 100%;
+  top: -50px;
+  height: 80vh; /* De hoogte van de kaart */
+  position: relative;
+  z-index: 100;
+}
+
+/* De zijbalk over volledige hoogte */
+#sidebar {
+  grid-area: 1 / 2 / 4 / 3;
+  background-color: #36a932;
+  color: white;
+  padding: 5px;
+  overflow-y: auto;
+}
+
+/* De lijst van projectnamen in de zijbalk */
+#project-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Styling voor elk projectitem */
+.project-item {
+  font-family: "SansPro", sans-serif; /* Gebruik SansPro voor projectnamen */
+  font-weight: normal; /* Zorg ervoor dat de tekst normaal is */
+  padding: 5px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  /*border-radius: 4px;
+  transition: background-color 0.3s ease;*/
+  background-color: #36a932;
+  color: white;
+}
+
+/* Hover-effect voor projectnamen */
+.project-item:hover {
+  background-color: #3c1053; /* Donkerroze/paars bij hover */
+  color: white; /* Witte tekst bij hover */
+}
+
+/* Verbergen van de kaart in eerste instantie */
+#project-map {
+  display: none;
+}
+
+#project-map.loaded {
+  display: block;
+}
+
+#project-details {
+  min-height: 150px;
+  padding: 5px;
+  font-size: 1.1em;
+  width: 100%;
+  display: none; /* Verborgen standaard */
+}
+
+.admin-container {
+  width: 80%;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+h2,
+h3,
+h4 {
+  color: #333;
+}
+
+#project-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+#project-buttons button {
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+}
+
+#project-buttons button:hover {
+  background-color: #45a049;
+}
+
+#gemeente-lijst {
+  margin-top: 20px;
+}
+
+#linked-list,
+#unlinked-list {
+  list-style-type: none;
+  padding: 0;
+}
+/*
+li {
+  padding: 5px;
+  margin-bottom: 5px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+*/
+button#save-changes {
+  background-color: #ff9800;
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+}
+
+button#save-changes:hover {
+  background-color: #e68900;
+}
+#project-selector {
+  margin: 20px;
+}
+
+#project-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.column {
+  display: inline-block;
+  width: 40%;
+  vertical-align: top;
+}
+/*
+ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+*/
+.arrow-button {
+  display: block;
+  margin: 10px auto;
+}
+
+#save-button {
+  display: block;
+  margin-top: 20px;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: #4caf50;
+  color: white;
+  padding: 10px;
+  cursor: pointer;
+}
+#project-relationship {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.list-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.list-box {
+  width: 45%;
+}
+
+#unconnected-list li,
+#connected-list li {
+  padding: 0px;
+  cursor: pointer;
+  background-color: #f1f1f1;
+  margin: 1px 0;
+}
+
+li.selected {
+  background-color: #007acc;
+  color: red;
+  font-weight: bold;
+}
+
+.arrow-button {
+  background-color: #4caf50;
+  color: white;
+  font-size: 18px;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 10px;
+}
+
+.arrow-button[disabled] {
+  background-color: #e7e7e7;
+  cursor: not-allowed;
+}
+
+#save-button {
+  margin-top: 20px;
+}
+#selected-project-name {
+  color: #333;
+  font-size: large;
+  width: 100%;
+}
