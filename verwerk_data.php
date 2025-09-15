@@ -9,6 +9,7 @@ function haal_gemeente_projecten_op()
         FROM projecten p
         INNER JOIN vng_projecten pg ON p.id = pg.projectID
         INNER JOIN vng_gemeenten g ON pg.gmcode = g.code
+        WHERE p.bewaren = 1
         ORDER BY p.naam
     ");
 
@@ -33,7 +34,8 @@ function haal_project_info_op()
 
     $result = $wpdb->get_results("
         SELECT naam, info
-        FROM projecten ORDER BY naam");
+        FROM projecten 
+        ORDER BY naam");
 
     $data = [];
     foreach ($result as $row) {
@@ -49,7 +51,7 @@ function get_projects()
 {
     global $wpdb;
 
-    $results = $wpdb->get_results("SELECT * FROM projecten ORDER BY naam", ARRAY_A);
+    $results = $wpdb->get_results("SELECT * FROM projecten WHERE bewaren = 1 ORDER BY naam", ARRAY_A);
 
     wp_send_json_success($results);
 }
@@ -217,7 +219,8 @@ function get_project_gemeenten()
     $connectedGemeenten = $wpdb->get_results(
         $wpdb->prepare("SELECT * FROM vng_gemeenten g
             INNER JOIN vng_projecten p ON g.code = p.gmcode
-            WHERE p.projectID = %d ORDER BY naam", $projectId), ARRAY_A
+            WHERE p.projectID = %d ORDER BY naam", $projectId),
+        ARRAY_A
     );
 
     // Haal de niet-gekoppelde gemeenten op
@@ -228,7 +231,10 @@ function get_project_gemeenten()
                 SELECT gmcode
                 FROM vng_projecten
                 WHERE projectID = %d ORDER BY naam
-            )", $projectId), ARRAY_A
+            )",
+            $projectId
+        ),
+        ARRAY_A
     );
 
     // Controleer of de gegevens zijn opgehaald
@@ -252,4 +258,121 @@ function get_project_name($projectId)
         ARRAY_A
     );
     return $project ? $project['naam'] : 'Onbekend project';
+}
+// AJAX voor toevoegen van nieuw project (ingelogde gebruikers)
+add_action('wp_ajax_add_new_project', 'add_new_project_callback');
+
+function add_new_project_callback()
+{
+    global $wpdb;
+
+    $name = isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '';
+
+    if (empty($name)) {
+        wp_send_json_error(['message' => 'Projectnaam mag niet leeg zijn']);
+        wp_die();
+    }
+
+    $table =  'projecten'; // Pas aan naar je tabel
+    $wpdb->insert($table, ['naam' => $name]);
+    $project_id = $wpdb->insert_id;
+
+    if ($project_id) {
+        wp_send_json_success([
+            'id' => $project_id,
+            'naam' => $name
+        ]);
+    } else {
+        wp_send_json_error(['message' => 'Kon project niet toevoegen']);
+    }
+
+    wp_die();
+}
+// AJAX voor "verwijderen" van project door bewaren op 0 te zetten
+add_action('wp_ajax_delete_project', 'delete_project_callback');
+
+function delete_project_callback()
+{
+    global $wpdb;
+
+    $name = isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '';
+
+    if (empty($name)) {
+        wp_send_json_error(['message' => 'Geen projectnaam ontvangen']);
+        wp_die();
+    }
+
+    $table = 'projecten'; // Pas aan naar jouw tabel
+    $updated = $wpdb->update(
+        $table,
+        ['bewaren' => 0],      // nieuwe waarde
+        ['naam' => $name],      // WHERE clause
+        ['%d'],                 // type van nieuwe waarde
+        ['%s']                  // type van WHERE waarde
+    );
+
+    if ($updated !== false) {
+        wp_send_json_success(['message' => 'Project succesvol verwijderd']);
+    } else {
+        wp_send_json_error(['message' => 'Kon project niet bijwerken']);
+    }
+
+    wp_die();
+}
+
+// AJAX voor ophalen van de toelichting
+add_action('wp_ajax_get_toelichting', 'get_toelichting_callback');
+function get_toelichting_callback()
+{
+    global $wpdb;
+
+    $name = isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '';
+    if (empty($name)) {
+        wp_send_json_error(['message' => 'Geen projectnaam opgegeven']);
+        wp_die();
+    }
+
+    $table = 'projecten'; // pas aan naar je tabel
+    $toelichting = $wpdb->get_var($wpdb->prepare(
+        "SELECT info FROM $table WHERE naam = %s",
+        $name
+    ));
+
+    wp_send_json_success(['toelichting' => $toelichting ?? '']);
+    wp_die();
+}
+
+// AJAX voor bijwerken van de toelichting
+add_action('wp_ajax_update_toelichting', 'update_toelichting_callback');
+function update_toelichting_callback()
+{
+    global $wpdb;
+
+    $name = isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '';
+    $titel = isset($_POST['titel']) ? sanitize_text_field($_POST['titel']) : '';
+    $toelichting = isset($_POST['toelichting']) ? sanitize_textarea_field($_POST['toelichting']) : '';
+
+    if (empty($name)) {
+        wp_send_json_error(['message' => 'Geen projectnaam opgegeven']);
+        wp_die();
+    }
+    if (empty($titel)) {
+        wp_send_json_error(['message' => 'Geen projectnaam opgegeven']);
+        wp_die();
+    }
+
+    $table = 'projecten'; // pas aan naar je tabel
+    $updated = $wpdb->update(
+        $table,
+        ['info' => $toelichting, 'naam' => $titel], // nieuwe waarden
+        ['naam' => $name],
+    );
+
+    if ($updated !== false) {
+        wp_send_json_success(['message' => 'Toelichting succesvol bijgewerkt']);
+    } else {
+        wp_send_json_error(['message' => 'Kon toelichting niet bijwerken']);
+    }
+
+    wp_die();
 }
