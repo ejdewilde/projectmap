@@ -111,50 +111,6 @@ body {
   display: none; /* Verborgen standaard */
 }
 
-.adm_parent {
-  display: grid;
-  grid-template-columns: 1fr 0.3fr 1fr;
-  grid-template-rows: auto auto; /* automatisch hoogtes volgens content */
-  grid-column-gap: 5px;
-  grid-row-gap: 5px;
-  /*/height: auto; /* of min-height: 300px; */
-}
-
-.adm_boven {
-  grid-area: 1 / 1 / 2 / 4;
-}
-.adm_li {
-  grid-area: 2 / 1 / 3 / 2;
-}
-.adm_mi {
-  grid-area: 2 / 2 / 3 / 3;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start; /* inhoud bovenaan plaatsen */
-  align-items: center; /* centreren horizontaal, optioneel */
-  height: auto; /* niet uitrekken naar 1fr */
-}
-
-.adm_li,
-.adm_re {
-  background-color: #f9f9f9; /* lichte achtergrond voor het kader */
-  border: 1px solid #ccc; /* grijs randje */
-  border-radius: 8px; /* afgeronde hoeken */
-  padding: 10px; /* beetje ruimte binnenin */
-  min-height: 200px; /* optioneel: minimum hoogte zodat de lijsten niet te klein zijn */
-  overflow-y: auto; /* scrollen als er te veel items zijn */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* optionele schaduw voor diepte */
-}
-
-.arrow-button {
-  margin: 5px 0; /* in column */
-}
-
-.adm_re {
-  grid-area: 2 / 3 / 3 / 4;
-}
-
 .admin-container {
   width: 80%;
   margin: 0 auto;
@@ -195,11 +151,24 @@ h4 {
   font-style: italic;
 }
 
+#gemeente-lijst {
+  margin-top: 20px;
+}
+
 #linked-list,
 #unlinked-list {
   list-style-type: none;
   padding: 0;
 }
+/*
+li {
+  padding: 5px;
+  margin-bottom: 5px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+*/
 button#save-changes {
   background-color: #ff9800;
   color: white;
@@ -226,6 +195,13 @@ button#save-changes:hover {
   width: 40%;
   vertical-align: top;
 }
+/*
+ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+*/
 .arrow-button {
   display: block;
   margin: 10px auto;
@@ -240,6 +216,21 @@ button#save-changes:hover {
   color: white;
   padding: 10px;
   cursor: pointer;
+}
+#project-relationship {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.list-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.list-box {
+  width: 45%;
 }
 
 #unconnected-list li,
@@ -264,6 +255,7 @@ li.selected {
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  margin: 10px;
 }
 
 .arrow-button[disabled] {
@@ -278,11 +270,4 @@ li.selected {
   color: #333;
   font-size: large;
   width: 100%;
-}
-#add-project-container {
-  margin-top: 30px;
-  display: none;
-}
-.btn-alert {
-  background-color: red;
 }

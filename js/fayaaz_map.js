@@ -52,13 +52,24 @@ function renderMap() {
         credits: {
             enabled: false
         },
-
+        exporting: {
+    		enabled: true,
+    		buttons: {
+        		contextButton: {
+            		menuItems: ['downloadPNG', 'downloadPDF', 'downloadSVG']
+        		}
+    		},
+            filename: 'movisie', // dynamisch
+    		sourceWidth: 1200,  // optioneel: betere resolutie
+    		sourceHeight: 800,
+		},
+        /*
         colorAxis: {
             min: 0,
             maxColor: '#005500',
             minColor: '#eee'
         },
-
+        */
         tooltip: {
             formatter: function () {
                 const naam = this.point.options.name || 'Onbekend';
@@ -82,7 +93,15 @@ function renderMap() {
                 hover: {
                     color: '#f8a2b1'
                 }
-            }
+            },
+            color: '#b7e4c7', // standaard lichtgroen
+            zones: [{
+                value: 0.5,  // alles <= 0.5 krijgt deze kleur
+                color: '#b7e4c7' // lichtgroen
+            }, {
+                value: 1.5,  // alles > 0.5 krijgt deze kleur
+                color: '#1f7831' // donkergroen
+            }]
         }]
     });
     // Zorg ervoor dat de kaart zichtbaar wordt na het laden
@@ -122,7 +141,7 @@ function populateProjectList() {
         });
 
         li.addEventListener('mouseout', function () {
-            renderMap();  // Render de kaart opnieuw naar de originele staat
+            //renderMap();  // Render de kaart opnieuw naar de originele staat
         });
 
         // Voeg een click event toe om de toelichting weer te geven
@@ -192,3 +211,13 @@ function resetMap() {
         }
     });
 }
+
+$('.project-button').on('click', function () {
+    const projectId = $(this).data('project-id');
+    const projectGemeenten = lookupGemeentenVoorProject(projectId);
+    const data = geojsonData.features.map(f => {
+        const code = f.properties.gemeentecode;
+        return [code, projectGemeenten.includes(code) ? 1 : 0];
+    });
+    chart.series[0].setData(data);
+});

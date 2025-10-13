@@ -35,7 +35,7 @@ jQuery(document).ready(function ($) {
                             loadProjectData(selectedProjectId); // Laad de gegevens van het geselecteerde project
                             projectButtonsDiv.hide(); // Verberg de projectknoppen nadat een project is gekozen
                             $('#project-title').hide(); // Verberg de titel van het project
-                        });
+                        });;
                     projectButtonsDiv.append(btn);
                 });
 
@@ -50,13 +50,9 @@ jQuery(document).ready(function ($) {
                             loadProjectData(selectedProjectId); // Laad de gegevens van het geselecteerde project
                             projectButtonsDiv.hide(); // Verberg de projectknoppen nadat een project is gekozen
                             $('#project-title').hide(); // Verberg de titel van het project
-                        });
+                        });;
                     projectButtonsDiv.append(btn);
                 });
-
-                //Maak de projectrelatie sectie zichtbaar
-                $('#add-project-container').show();
-
             } else {
                 console.error('Fout bij ophalen van projecten:', data.message);
             }
@@ -65,7 +61,6 @@ jQuery(document).ready(function ($) {
 
     // Functie om de gegevens van het geselecteerde project te laden
     function loadProjectData(projectId) {
-        $('#add-project-container').hide();
         fetch(ajaxurl + '?action=get_project_gemeenten&project_id=' + projectId)
             .then(response => response.json())
             .then(data => {
@@ -74,10 +69,7 @@ jQuery(document).ready(function ($) {
                     const unconnectedGemeenten = Array.isArray(data.data.unconnected) ? data.data.unconnected : [];
 
                     // Toon projectnaam
-
                     $('#selected-project-name').text(data.data.projectName);
-                    const toelichting = loadToelichting(data.data.projectName);
-                    $('#toelichting_input').text(toelichting);
 
                     // Vul de lijsten met gemeenten
                     // Vul de connected-gemeentenlijst
@@ -103,17 +95,10 @@ jQuery(document).ready(function ($) {
                             .attr('data-code', gemeente.code); // <- Ook hier!
                         unconnectedList.append(li);
                     });
-                    // Zet de projectId als data-attribuut op de titel
-                    $("#selected-project-name")
-                        .text(data.data.projectName)
-                        .data("project-id", projectId);
 
-
-                    // eventueel ook de huidige toelichting als data-attribuut
 
                     // Maak de projectrelatie sectie zichtbaar
                     $('#project-relationship').show();
-
                 } else {
                     console.error('Fout bij ophalen van projectgemeenten:', data.message);
                 }
@@ -121,18 +106,24 @@ jQuery(document).ready(function ($) {
             .catch(error => console.error('Fout bij het ophalen van projectgemeenten:', error));
     }
 
+    // Functie om een geselecteerde gemeente te markeren
     function selectGemeente(listId, gemeenteElement) {
-        // Toggle selectie
-        gemeenteElement.toggleClass('selected');
+        // Verwijder selectie van andere elementen
+        $('#' + listId + ' li').removeClass('selected');
 
-        // Enable/disable de pijlen op basis van of er een geselecteerde LI is
-        const selectedFromConnected = $('#connected-list li.selected').length > 0;
-        const selectedFromUnconnected = $('#unconnected-list li.selected').length > 0;
+        // Markeer het aangeklikte element
+        gemeenteElement.addClass('selected');
 
-        $('#to-right').prop('disabled', !selectedFromUnconnected);
-        $('#to-left').prop('disabled', !selectedFromConnected);
+        // Verlicht de juiste knop (pijl) op basis van de selectie
+        if (listId === 'unconnected-list') {
+            $('#to-right').prop('disabled', false);
+            $('#to-left').prop('disabled', true);
+        } else if (listId === 'connected-list') {
+            $('#to-left').prop('disabled', false);
+            $('#to-right').prop('disabled', true);
+        }
+        checkButtonState();
     }
-
     // Functie om knoppen (pijlen) in te schakelen op basis van de selectie
     function checkButtonState() {
         const selectedFromConnected = $('#connected-list li.selected').length > 0;
@@ -179,6 +170,7 @@ jQuery(document).ready(function ($) {
             $('#to-left').prop('disabled', true);
             // Controleer de knopstatus opnieuw
             checkButtonState();
+            selectedGemeente.trigger('click');
         }
 
 
@@ -236,175 +228,5 @@ jQuery(document).ready(function ($) {
     $('#unconnected-list').on('click', 'li', function () {
         selectGemeente('unconnected-list', $(this));
     });
-
-    // Nieuw project aanmaken via AJAX
-    $('#add-project-form').submit(function (e) {
-        e.preventDefault(); // voorkom pagina-refresh
-
-        const projectName = $('#new-project-name').val().trim();
-        if (!projectName) return; // geen lege naam
-
-        $.ajax({
-            url: ajaxurl,
-            method: 'POST',
-            data: {
-                action: 'add_new_project',  // WordPress AJAX action
-                name: projectName
-            },
-            success: function (response) {
-                if (response.success) {
-                    const project = response.data;
-
-                    // Voeg nieuwe knop toe aan het project-buttons div
-                    const button = $('<button>')
-                        .text(project.naam)
-                        .click(function () {
-                            selectedProjectId = project.id;
-                            loadProjectData(selectedProjectId);
-                            $('#project-buttons').hide();
-                            $('#project-title').hide();
-                        });
-
-                    $('#project-buttons').append(button);
-
-                    // Maak het formulier leeg
-                    $('#new-project-name').val('');
-
-                    alert('Project "' + project.naam + '" is toegevoegd!');
-                    location.reload();
-                } else {
-                    alert('Fout bij toevoegen project: ' + response.message);
-                }
-            },
-            error: function () {
-                alert('Er is een fout opgetreden bij het toevoegen van het project.');
-            }
-        });
-
-    });
-
-    $('#remove_project').click(function () {
-        const projectName = $('#selected-project-name').text();
-
-        if (!projectName) {
-            alert('Geen project geselecteerd.');
-            return;
-        }
-
-        if (!confirm(`Weet je zeker dat je project "${projectName}" wilt verwijderen?`)) {
-            return;
-        }
-
-        $.ajax({
-            url: ajaxurl,
-            type: 'POST',
-            data: {
-                action: 'delete_project',
-                name: projectName
-            },
-            success: function (response) {
-                if (response.success) {
-                    alert(response.data.message);
-                    // Verwijder projectbutton uit de lijst
-                    $(`#project-buttons .project-button:contains("${projectName}")`).remove();
-                    $('#selected-project-name').text('');
-                    $('#project-relationship').hide();
-                } else {
-                    alert('Fout: ' + response.data.message);
-                }
-            },
-            error: function () {
-                alert('Er is een fout opgetreden bij de server.');
-            }
-        });
-        location.reload();
-
-    });
-
-    $('#save_toelichting').click(function () {
-        const projectName = $('#selected-project-name').text();
-        const toelichting = $('#toelichting-input').val();
-
-        if (!projectName) {
-            alert('Geen project geselecteerd.');
-            return;
-        }
-
-        $.ajax({
-            url: ajaxurl,
-            type: 'POST',
-            data: {
-                action: 'update_toelichting',
-                name: projectName,
-                toelichting: toelichting
-            },
-            success: function (response) {
-                if (response.success) {
-                    alert(response.data.message);
-                } else {
-                    alert('Fout: ' + response.data.message);
-                }
-            },
-            error: function () {
-                alert('Er is een fout opgetreden bij de server.');
-            }
-        });
-
-    });
-    // Als een project geselecteerd wordt, haal de toelichting op
-    function loadToelichting(projectName) {
-        // AJAX call om de huidige toelichting op te halen
-        $.ajax({
-            url: ajaxurl,
-            type: 'POST',
-            data: {
-                action: 'get_toelichting', // deze moet je nog aanmaken in PHP
-                name: projectName
-            },
-            success: function (response) {
-                if (response.success) {
-                    $('#toelichting_input').val(response.data.toelichting);
-                    $('#titel_input').val(projectName);
-                } else {
-                    $('#toelichting_input').val('');
-                }
-            }
-        });
-    }
-
-    // Klik op bijwerken
-    $('#update_toelichting').click(function () {
-        const projectName = $('#selected-project-name').text();
-        const toelichting = $('#toelichting_input').val();
-        const nieuwetitel = $('#titel_input').val();
-
-        if (!projectName) {
-            alert('Geen project geselecteerd.');
-            return;
-        }
-
-        $.ajax({
-            url: ajaxurl,
-            type: 'POST',
-            data: {
-                action: 'update_toelichting',
-                name: projectName,
-                titel: nieuwetitel,
-                toelichting: toelichting
-            },
-            success: function (response) {
-                if (response.success) {
-                    alert(response.data.message);
-                    $('#selected-project-name').text(nieuwetitel);
-                } else {
-                    alert('Fout: ' + response.data.message);
-                }
-            },
-            error: function () {
-                alert('Er is een fout opgetreden bij de server.');
-            }
-        });
-    });
-
 });
 
