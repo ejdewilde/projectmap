@@ -29,6 +29,7 @@ class Project_Map
 
 
         <script src="https://code.highcharts.com/maps/highmaps.js"></script>
+        <script src="https://code.highcharts.com/modules/exporting.js"></script>
         <script src="https://code.highcharts.com/maps/modules/accessibility.js"></script>
 
         <script>
